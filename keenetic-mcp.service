@@ -1,0 +1,19 @@
+# systemd unit for running keenetic-mcp as a service (Linux).
+# 1. Put this repo at /opt/keenetic-mcp and create the venv (see README).
+# 2. Copy this file to /etc/systemd/system/keenetic-mcp.service
+# 3. sudo systemctl daemon-reload && sudo systemctl enable --now keenetic-mcp
+[Unit]
+Description=keenetic-mcp — Keenetic router MCP server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/keenetic-mcp
+EnvironmentFile=/opt/keenetic-mcp/.env
+ExecStart=/opt/keenetic-mcp/.venv/bin/python /opt/keenetic-mcp/server.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
