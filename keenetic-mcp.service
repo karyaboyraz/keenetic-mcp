@@ -13,7 +13,7 @@ WorkingDirectory=/opt/keenetic-mcp
 EnvironmentFile=/opt/keenetic-mcp/.env
 # Run over the network as a long-lived service (stdio is for client-launched use).
 Environment=KEENETIC_TRANSPORT=http
-ExecStart=/opt/keenetic-mcp/.venv/bin/keenetic-mcp
+ExecStart=/opt/keenetic-mcp/.venv/bin/keenetic-router-mcp
 Restart=on-failure
 RestartSec=5
 

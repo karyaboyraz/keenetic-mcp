@@ -1,7 +1,7 @@
 # keenetic-mcp
 
-[![PyPI](https://img.shields.io/pypi/v/keenetic-mcp.svg)](https://pypi.org/project/keenetic-mcp/)
-[![Python](https://img.shields.io/pypi/pyversions/keenetic-mcp.svg)](https://pypi.org/project/keenetic-mcp/)
+[![PyPI](https://img.shields.io/pypi/v/keenetic-router-mcp.svg)](https://pypi.org/project/keenetic-router-mcp/)
+[![Python](https://img.shields.io/pypi/pyversions/keenetic-router-mcp.svg)](https://pypi.org/project/keenetic-router-mcp/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 An [MCP](https://modelcontextprotocol.io) server that lets an AI assistant (Claude, or any MCP client) manage your **Keenetic router** in plain language — list connected devices, pin static DHCP leases, rename devices, check WAN status, and reboot.
@@ -45,10 +45,12 @@ Requires Python 3.9+.
 **The easy way — no clone, no venv.** With [`uv`](https://docs.astral.sh/uv/) installed you don't install anything at all; your MCP client launches it on demand (see [Connecting an MCP client](#connecting-an-mcp-client)). To install as a command instead:
 
 ```bash
-uv tool install keenetic-mcp    # or: pipx install keenetic-mcp
+uv tool install keenetic-router-mcp    # or: pipx install keenetic-router-mcp
 ```
 
-Then set your router password in the environment (`KEENETIC_PASS`) and run `keenetic-mcp`. By default it speaks **stdio** — the transport desktop MCP clients expect.
+Then set your router password in the environment (`KEENETIC_PASS`) and run `keenetic-router-mcp`. By default it speaks **stdio** — the transport desktop MCP clients expect.
+
+> The PyPI package is **`keenetic-router-mcp`** (the shorter `keenetic-mcp` belongs to a different project). The GitHub repo stays `keenetic-mcp`.
 
 **From source** (for development or the systemd service):
 
@@ -60,7 +62,7 @@ python3 -m venv .venv
 
 cp .env.example .env
 # edit .env: set KEENETIC_PASS (and KEENETIC_ENABLE_WRITES=1 if you want write tools)
-.venv/bin/keenetic-mcp
+.venv/bin/keenetic-router-mcp
 ```
 
 ## Configuration
@@ -88,7 +90,7 @@ Most clients (Claude Desktop, Claude Code, Cursor, …) start the server themsel
   "mcpServers": {
     "keenetic": {
       "command": "uvx",
-      "args": ["keenetic-mcp"],
+      "args": ["keenetic-router-mcp"],
       "env": {
         "KEENETIC_URL": "http://192.168.1.1",
         "KEENETIC_PASS": "your-router-admin-password",
@@ -99,7 +101,7 @@ Most clients (Claude Desktop, Claude Code, Cursor, …) start the server themsel
 }
 ```
 
-If you installed it as a command (`uv tool install` / `pipx`), use `"command": "keenetic-mcp"` with no `args`. Restart the client (MCP config isn't hot-reloaded), then ask: *"list my router's devices"*.
+If you installed it as a command (`uv tool install` / `pipx`), use `"command": "keenetic-router-mcp"` with no `args`. Restart the client (MCP config isn't hot-reloaded), then ask: *"list my router's devices"*.
 
 ### http — connect to a running network service
 
