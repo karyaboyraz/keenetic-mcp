@@ -1,0 +1,41 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "name": "io.github.karyaboyraz/keenetic-mcp",
+  "description": "Manage a Keenetic router (devices, DHCP leases, WAN status, reboot) via its RCI JSON API — read tools plus guarded, opt-in write tools.",
+  "version": "0.1.0",
+  "repository": {
+    "url": "https://github.com/karyaboyraz/keenetic-mcp",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registry_type": "pypi",
+      "identifier": "keenetic-router-mcp",
+      "version": "0.1.0",
+      "transport": { "type": "stdio" },
+      "environment_variables": [
+        {
+          "name": "KEENETIC_URL",
+          "description": "Router base URL (web-admin address)",
+          "default": "http://192.168.1.1"
+        },
+        {
+          "name": "KEENETIC_USER",
+          "description": "Admin username",
+          "default": "admin"
+        },
+        {
+          "name": "KEENETIC_PASS",
+          "description": "Admin password",
+          "is_required": true,
+          "is_secret": true
+        },
+        {
+          "name": "KEENETIC_ENABLE_WRITES",
+          "description": "Set to 1 to enable write tools (off by default)",
+          "default": "0"
+        }
+      ]
+    }
+  ]
+}
