@@ -1,8 +1,8 @@
 # keenetic-mcp
 
-[![PyPI](https://img.shields.io/pypi/v/keenetic-router-mcp.svg)](https://pypi.org/project/keenetic-router-mcp/)
-[![Python](https://img.shields.io/pypi/pyversions/keenetic-router-mcp.svg)](https://pypi.org/project/keenetic-router-mcp/)
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![MCP](https://img.shields.io/badge/MCP-server-663399.svg)](https://modelcontextprotocol.io)
 
 An [MCP](https://modelcontextprotocol.io) server that lets an AI assistant (Claude, or any MCP client) manage your **Keenetic router** in plain language — list connected devices, pin static DHCP leases, rename devices, check WAN status, and reboot.
 
@@ -42,15 +42,16 @@ Read tools always work. **Write tools are disabled** until you set `KEENETIC_ENA
 
 Requires Python 3.9+.
 
-**The easy way — no clone, no venv.** With [`uv`](https://docs.astral.sh/uv/) installed you don't install anything at all; your MCP client launches it on demand (see [Connecting an MCP client](#connecting-an-mcp-client)). To install as a command instead:
+**The easy way — no clone, no venv.** With [`uv`](https://docs.astral.sh/uv/) installed, run it straight from GitHub; your MCP client launches it on demand (see [Connecting an MCP client](#connecting-an-mcp-client)). To install it as a command instead:
 
 ```bash
-uv tool install keenetic-router-mcp    # or: pipx install keenetic-router-mcp
+uv tool install "git+https://github.com/karyaboyraz/keenetic-mcp"
+# or: pipx install "git+https://github.com/karyaboyraz/keenetic-mcp"
 ```
 
 Then set your router password in the environment (`KEENETIC_PASS`) and run `keenetic-router-mcp`. By default it speaks **stdio** — the transport desktop MCP clients expect.
 
-> The PyPI package is **`keenetic-router-mcp`** (the shorter `keenetic-mcp` belongs to a different project). The GitHub repo stays `keenetic-mcp`.
+> The installed command is **`keenetic-router-mcp`**. The GitHub repo is `keenetic-mcp`.
 
 **From source** (for development or the systemd service):
 
@@ -83,14 +84,14 @@ All configuration is via environment variables (see `.env.example`):
 
 ### stdio — the client launches the server (recommended)
 
-Most clients (Claude Desktop, Claude Code, Cursor, …) start the server themselves and talk over stdio. With `uv` installed, no prior install step is needed — `uvx` fetches and runs it. Add to your client's MCP config (`claude_desktop_config.json`, `~/.mcp.json`, etc.):
+Most clients (Claude Desktop, Claude Code, Cursor, …) start the server themselves and talk over stdio. With `uv` installed, no prior install step is needed — `uvx` fetches from GitHub and runs it. Add to your client's MCP config (`claude_desktop_config.json`, `~/.mcp.json`, etc.):
 
 ```json
 {
   "mcpServers": {
     "keenetic": {
       "command": "uvx",
-      "args": ["keenetic-router-mcp"],
+      "args": ["--from", "git+https://github.com/karyaboyraz/keenetic-mcp", "keenetic-router-mcp"],
       "env": {
         "KEENETIC_URL": "http://192.168.1.1",
         "KEENETIC_PASS": "your-router-admin-password",
