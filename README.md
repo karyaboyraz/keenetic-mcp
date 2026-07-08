@@ -1,5 +1,9 @@
 # keenetic-mcp
 
+[![PyPI](https://img.shields.io/pypi/v/keenetic-mcp.svg)](https://pypi.org/project/keenetic-mcp/)
+[![Python](https://img.shields.io/pypi/pyversions/keenetic-mcp.svg)](https://pypi.org/project/keenetic-mcp/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 An [MCP](https://modelcontextprotocol.io) server that lets an AI assistant (Claude, or any MCP client) manage your **Keenetic router** in plain language — list connected devices, pin static DHCP leases, rename devices, check WAN status, and reboot.
 
 It talks to the router's built-in **RCI JSON API** over HTTP, so there's no cloud, no third-party service, and nothing leaves your network. You run it yourself against your own router.
@@ -38,23 +42,26 @@ Read tools always work. **Write tools are disabled** until you set `KEENETIC_ENA
 
 Requires Python 3.9+.
 
+**The easy way — no clone, no venv.** With [`uv`](https://docs.astral.sh/uv/) installed you don't install anything at all; your MCP client launches it on demand (see [Connecting an MCP client](#connecting-an-mcp-client)). To install as a command instead:
+
 ```bash
-git clone https://github.com/<you>/keenetic-mcp.git
+uv tool install keenetic-mcp    # or: pipx install keenetic-mcp
+```
+
+Then set your router password in the environment (`KEENETIC_PASS`) and run `keenetic-mcp`. By default it speaks **stdio** — the transport desktop MCP clients expect.
+
+**From source** (for development or the systemd service):
+
+```bash
+git clone https://github.com/karyaboyraz/keenetic-mcp.git
 cd keenetic-mcp
 python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
+.venv/bin/pip install .
 
 cp .env.example .env
 # edit .env: set KEENETIC_PASS (and KEENETIC_ENABLE_WRITES=1 if you want write tools)
+.venv/bin/keenetic-mcp
 ```
-
-Run it:
-
-```bash
-.venv/bin/python server.py
-```
-
-It starts a streamable-HTTP MCP server on `http://0.0.0.0:8905/mcp` (configurable via `KEENETIC_HOST` / `KEENETIC_PORT`).
 
 ## Configuration
 
@@ -66,14 +73,37 @@ All configuration is via environment variables (see `.env.example`):
 | `KEENETIC_USER` | `admin` | Admin username |
 | `KEENETIC_PASS` | — | **Required.** Admin password |
 | `KEENETIC_ENABLE_WRITES` | `0` | Set to `1` to enable write tools |
-| `KEENETIC_HOST` | `0.0.0.0` | Bind address (use `127.0.0.1` for local-only) |
-| `KEENETIC_PORT` | `8905` | Bind port |
+| `KEENETIC_TRANSPORT` | `stdio` | `stdio` (client-launched) · `http` / `sse` (network service) |
+| `KEENETIC_HOST` | `0.0.0.0` | Bind address for `http`/`sse` (use `127.0.0.1` for local-only) |
+| `KEENETIC_PORT` | `8905` | Bind port for `http`/`sse` |
 
 ## Connecting an MCP client
 
-### Claude Code
+### stdio — the client launches the server (recommended)
 
-Add to your `~/.mcp.json` (or project `.mcp.json`):
+Most clients (Claude Desktop, Claude Code, Cursor, …) start the server themselves and talk over stdio. With `uv` installed, no prior install step is needed — `uvx` fetches and runs it. Add to your client's MCP config (`claude_desktop_config.json`, `~/.mcp.json`, etc.):
+
+```json
+{
+  "mcpServers": {
+    "keenetic": {
+      "command": "uvx",
+      "args": ["keenetic-mcp"],
+      "env": {
+        "KEENETIC_URL": "http://192.168.1.1",
+        "KEENETIC_PASS": "your-router-admin-password",
+        "KEENETIC_ENABLE_WRITES": "0"
+      }
+    }
+  }
+}
+```
+
+If you installed it as a command (`uv tool install` / `pipx`), use `"command": "keenetic-mcp"` with no `args`. Restart the client (MCP config isn't hot-reloaded), then ask: *"list my router's devices"*.
+
+### http — connect to a running network service
+
+If you run it as a long-lived service (`KEENETIC_TRANSPORT=http`, see [Running as a service](#running-as-a-service-linux)), point the client at the URL instead:
 
 ```json
 {
@@ -86,15 +116,9 @@ Add to your `~/.mcp.json` (or project `.mcp.json`):
 }
 ```
 
-Then restart Claude Code (MCP config isn't hot-reloaded). Ask: *"list my router's devices"*.
-
-### Claude Desktop / other clients
-
-Point the client at the same streamable-HTTP URL. If your client only supports stdio, run the server with an HTTP-to-stdio bridge, or open an issue — a stdio transport option is easy to add.
-
 ## Running as a service (Linux)
 
-A `keenetic-mcp.service` systemd unit is included. Put the repo at `/opt/keenetic-mcp`, create the venv there, then:
+A `keenetic-mcp.service` systemd unit is included — it runs the server over HTTP (`KEENETIC_TRANSPORT=http`) so clients connect to it by URL. Put the repo at `/opt/keenetic-mcp`, create the venv there (`python3 -m venv .venv && .venv/bin/pip install .`), fill in `.env`, then:
 
 ```bash
 sudo cp keenetic-mcp.service /etc/systemd/system/

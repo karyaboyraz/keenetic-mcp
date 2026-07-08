@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "keenetic-mcp"
+version = "0.1.0"
+description = "MCP server for managing Keenetic routers (devices/DHCP/WAN) via the RCI JSON API — read tools plus guarded, opt-in write tools."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "keenetic-mcp contributors" }]
+keywords = ["mcp", "model-context-protocol", "keenetic", "router", "dhcp", "network", "llm", "claude"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Networking",
+    "Topic :: Home Automation",
+]
+dependencies = ["mcp>=1.2.0"]
+
+[project.urls]
+Homepage = "https://github.com/karyaboyraz/keenetic-mcp"
+Repository = "https://github.com/karyaboyraz/keenetic-mcp"
+Issues = "https://github.com/karyaboyraz/keenetic-mcp/issues"
+
+[project.scripts]
+keenetic-mcp = "keenetic_mcp.server:main"
+
+[tool.setuptools]
+packages = ["keenetic_mcp"]

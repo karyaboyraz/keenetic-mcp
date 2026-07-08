@@ -16,8 +16,9 @@ Configuration (environment variables):
   KEENETIC_USER          Admin username           (default admin)
   KEENETIC_PASS          Admin password           (required)
   KEENETIC_ENABLE_WRITES Set to 1/true/yes to enable write tools (default off)
-  KEENETIC_HOST          Bind address for the MCP HTTP server (default 0.0.0.0)
-  KEENETIC_PORT          Bind port                (default 8905)
+  KEENETIC_TRANSPORT     stdio (default) | http | sse — MCP transport to serve
+  KEENETIC_HOST          Bind address for the HTTP/SSE transport (default 0.0.0.0)
+  KEENETIC_PORT          Bind port for the HTTP/SSE transport (default 8905)
 
 Tested against Keenetic Hopper DSL (KN-3610). The RCI API is shared across the
 Keenetic line (Giga, Viva, Hopper, …), so other models should work too.
@@ -377,7 +378,23 @@ def reboot(confirm: bool = False) -> str:
     return "Reboot triggered: " + json.dumps(res, ensure_ascii=False)[:300]
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Console entry point. Selects the MCP transport via KEENETIC_TRANSPORT.
+
+    Default is stdio — the transport most desktop MCP clients (Claude Desktop, etc.)
+    expect and the one used when the server is launched by the client. Set
+    KEENETIC_TRANSPORT=http (or sse) to serve over the network instead.
+    """
     if not PASS:
         raise SystemExit("KEENETIC_PASS is not set. Copy .env.example to .env and fill it in.")
-    mcp.run(transport="streamable-http")
+    transport = os.environ.get("KEENETIC_TRANSPORT", "stdio").strip().lower()
+    if transport in ("http", "streamable-http", "streamable_http"):
+        mcp.run(transport="streamable-http")
+    elif transport == "sse":
+        mcp.run(transport="sse")
+    else:
+        mcp.run(transport="stdio")
+
+
+if __name__ == "__main__":
+    main()
